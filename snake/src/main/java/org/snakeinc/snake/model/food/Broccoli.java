@@ -1,5 +1,8 @@
 package org.snakeinc.snake.model.food;
 
+import lombok.Getter;
+
+@Getter
 public non-sealed class Broccoli extends Food {
     private final boolean isSteamed;
     public Broccoli() {
@@ -7,7 +10,4 @@ public non-sealed class Broccoli extends Food {
         this.isSteamed = random < 0.5;
     }
 
-    public boolean isSteamed() {
-        return isSteamed;
-    }
 }

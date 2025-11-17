@@ -4,13 +4,10 @@ import lombok.Getter;
 
 @Getter
 public non-sealed class Apple extends Food {
-    private final boolean isPoisonous;
+    private final boolean isPoisoned;
     public Apple() {
         var random = Math.random();
-        this.isPoisonous = random < 0.1;
+        this.isPoisoned = random < 0.1;
     }
 
-    public boolean isPoisonous() {
-        return isPoisonous;
-    }
 }

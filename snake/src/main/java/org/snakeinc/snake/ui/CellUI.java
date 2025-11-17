@@ -62,7 +62,7 @@ public class CellUI {
     private Color getFoodColor(Graphics g) {
         switch (cell.getFood()) {
             case Apple apple -> {
-                if (apple.isPoisonous())
+                if (apple.isPoisoned())
                 {
                     return Color.MAGENTA;
                 }
@@ -76,7 +76,7 @@ public class CellUI {
                 return Color.GREEN;
             }
             default -> {
-                return Color.MAGENTA;
+                return Color.BLUE;
             }
         }
     }
