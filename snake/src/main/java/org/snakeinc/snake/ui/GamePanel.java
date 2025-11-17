@@ -12,6 +12,7 @@ import java.awt.event.KeyListener;
 import javax.swing.JPanel;
 import javax.swing.Timer;
 import org.snakeinc.snake.GameParams;
+import org.snakeinc.snake.exception.MalnutritionException;
 import org.snakeinc.snake.exception.OutOfPlayException;
 import org.snakeinc.snake.exception.SelfCollisionException;
 import org.snakeinc.snake.model.Direction;
@@ -65,7 +66,7 @@ public class GamePanel extends JPanel implements ActionListener, KeyListener {
         if (running) {
             try {
                 game.iterate(direction);
-            } catch (OutOfPlayException | SelfCollisionException exception) {
+            } catch (OutOfPlayException | SelfCollisionException | MalnutritionException exception) {
                 timer.stop();
                 running = false;
             }

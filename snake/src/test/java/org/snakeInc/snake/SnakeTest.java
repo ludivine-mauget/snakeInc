@@ -3,24 +3,26 @@ package org.snakeInc.snake;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.snakeinc.snake.GameParams;
+import org.snakeinc.snake.exception.MalnutritionException;
 import org.snakeinc.snake.exception.OutOfPlayException;
 import org.snakeinc.snake.exception.SelfCollisionException;
 import org.snakeinc.snake.model.Direction;
 import org.snakeinc.snake.model.Game;
+import org.snakeinc.snake.model.food.FoodType;
 
 public class SnakeTest {
 
     Game game = new Game();
 
     @Test
-    public void snakeEatApplesAfterMove_ReturnsCorrectBodySize() throws OutOfPlayException, SelfCollisionException {
-        game.getBasket().addApple(game.getGrid().getTile(5, 4));
+    public void snakeEatApplesAfterMove_ReturnsCorrectBodySize() throws OutOfPlayException, SelfCollisionException, MalnutritionException {
+        game.getBasket().addFood(game.getGrid().getTile(5, 4),  FoodType.APPLE);
         game.getSnake().move(Direction.UP);
         Assertions.assertEquals(2, game.getSnake().getSize());
     }
 
     @Test
-    void snakeMovesUp_ReturnCorrectHead() throws OutOfPlayException, SelfCollisionException {
+    void snakeMovesUp_ReturnCorrectHead() throws OutOfPlayException, SelfCollisionException, MalnutritionException {
         game.getSnake().move(Direction.UP);
         Assertions.assertEquals(5, game.getSnake().getHead().getX());
         Assertions.assertEquals(4, game.getSnake().getHead().getY());
@@ -36,10 +38,10 @@ public class SnakeTest {
     }
 
     @Test
-    void snakeEatsItself_ThrowsSelfCollisionException() throws OutOfPlayException, SelfCollisionException {
-        game.getBasket().addApple(game.getGrid().getTile(5, 4));
-        game.getBasket().addApple(game.getGrid().getTile(5, 3));
-        game.getBasket().addApple(game.getGrid().getTile(5, 2));
+    void snakeEatsItself_ThrowsSelfCollisionException() throws OutOfPlayException, SelfCollisionException, MalnutritionException {
+        game.getBasket().addFood(game.getGrid().getTile(5, 4), FoodType.APPLE);
+        game.getBasket().addFood(game.getGrid().getTile(5, 3), FoodType.APPLE);
+        game.getBasket().addFood(game.getGrid().getTile(5, 2), FoodType.APPLE);
         for (int i = 0; i < 4; i++) {
             game.iterate(Direction.UP);
         }

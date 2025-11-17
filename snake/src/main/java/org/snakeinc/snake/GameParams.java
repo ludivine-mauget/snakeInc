@@ -10,4 +10,7 @@ public class GameParams {
     // Snake default position
     public static Integer SNAKE_DEFAULT_X = 5;
     public static Integer SNAKE_DEFAULT_Y = 5;
+
+    // Snake initial size
+    public static Integer SNAKE_INITIAL_SIZE = 3;
 }
