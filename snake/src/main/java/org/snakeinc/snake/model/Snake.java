@@ -34,22 +34,14 @@ public class Snake {
         onAppleEatenListener.onAppleEaten(apple, cell);
     }
 
-    public void move(char direction) throws OutOfPlayException, SelfCollisionException {
+    public void move(Direction direction) throws OutOfPlayException, SelfCollisionException {
         int x = getHead().getX();
         int y = getHead().getY();
         switch (direction) {
-            case 'U':
-                y--;
-                break;
-            case 'D':
-                y++;
-                break;
-            case 'L':
-                x--;
-                break;
-            case 'R':
-                x++;
-                break;
+            case UP -> y--;
+            case DOWN -> y++;
+            case LEFT -> x--;
+            case RIGHT -> x++;
         }
         Cell newHead = grid.getTile(x, y);
         if (newHead == null) {
