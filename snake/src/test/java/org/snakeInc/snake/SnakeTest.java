@@ -1,55 +1,100 @@
 package org.snakeInc.snake;
 
 import org.junit.jupiter.api.Assertions;
-import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.CsvSource;
 import org.snakeinc.snake.GameParams;
 import org.snakeinc.snake.exception.MalnutritionException;
 import org.snakeinc.snake.exception.OutOfPlayException;
 import org.snakeinc.snake.exception.SelfCollisionException;
 import org.snakeinc.snake.model.Direction;
-import org.snakeinc.snake.model.Game;
-import org.snakeinc.snake.model.food.FoodType;
+import org.snakeinc.snake.model.Grid;
+import org.snakeinc.snake.model.food.*;
+import org.snakeinc.snake.model.snakes.Anaconda;
+import org.snakeinc.snake.model.snakes.BoaConstrictor;
+import org.snakeinc.snake.model.snakes.Python;
+import org.snakeinc.snake.model.snakes.Snake;
 
 public class SnakeTest {
 
-    Game game = new Game();
+    Grid grid;
+    FoodEatenListener listener;
 
-    @Test
-    public void snakeEatApplesAfterMove_ReturnsCorrectBodySize() throws OutOfPlayException, SelfCollisionException, MalnutritionException {
-        game.getBasket().addFood(game.getGrid().getTile(5, 4),  FoodType.APPLE);
-        game.getSnake().move(Direction.UP);
-        Assertions.assertEquals(2, game.getSnake().getSize());
+    @BeforeEach
+    void setUp() {
+        Food.setMovementEnabled(false);
+        grid = new Grid();
+        listener = (food, cell) -> {};
     }
 
-    @Test
-    void snakeMovesUp_ReturnCorrectHead() throws OutOfPlayException, SelfCollisionException, MalnutritionException {
-        game.getSnake().move(Direction.UP);
-        Assertions.assertEquals(5, game.getSnake().getHead().getX());
-        Assertions.assertEquals(4, game.getSnake().getHead().getY());
+    @ParameterizedTest
+    @CsvSource({
+        "ANACONDA, 4",
+        "PYTHON, 3",
+        "BOA, 2"
+    })
+    public void snakeEatApplesAfterMove_ReturnsCorrectBodySize(String snakeType, int expectedSize) throws OutOfPlayException, SelfCollisionException, MalnutritionException {
+        Snake snake = createSnake(snakeType);
+        grid.getTile(4, 4).addFood(new Apple());
+        snake.move(Direction.UP);
+        Assertions.assertEquals(expectedSize, snake.getSize());
     }
 
-    @Test
-    void snakeMovesOutOfBounds_ThrowsOutOfPlayException() {
+    @ParameterizedTest
+    @CsvSource({
+        "ANACONDA",
+        "PYTHON",
+        "BOA"
+    })
+    void snakeMovesUp_ReturnCorrectHead(String snakeType) throws OutOfPlayException, SelfCollisionException, MalnutritionException {
+        Snake snake = createSnake(snakeType);
+        snake.move(Direction.UP);
+        Assertions.assertEquals(4, snake.getHead().getX());
+        Assertions.assertEquals(4, snake.getHead().getY());
+    }
+
+    @ParameterizedTest
+    @CsvSource({
+            "ANACONDA",
+            "PYTHON",
+            "BOA"
+    })
+    void anacondaMovesOutOfBounds_ThrowsOutOfPlayException(String snakeType) {
+        Snake snake = createSnake(snakeType);
         Assertions.assertThrows(OutOfPlayException.class, () -> {
-            for (int i = 0; i < GameParams.TILES_Y;  i++) {
-                game.getSnake().move(Direction.UP);
+            for (int i = 0; i < GameParams.TILES_Y; i++) {
+                snake.move(Direction.UP);
             }
         });
     }
 
-    @Test
-    void snakeEatsItself_ThrowsSelfCollisionException() throws OutOfPlayException, SelfCollisionException, MalnutritionException {
-        game.getBasket().addFood(game.getGrid().getTile(5, 4), FoodType.APPLE);
-        game.getBasket().addFood(game.getGrid().getTile(5, 3), FoodType.APPLE);
-        game.getBasket().addFood(game.getGrid().getTile(5, 2), FoodType.APPLE);
-        for (int i = 0; i < 4; i++) {
-            game.iterate(Direction.UP);
+    @ParameterizedTest
+    @CsvSource({
+        "ANACONDA"
+    })
+    void anacondaEatsItself_ThrowsSelfCollisionException(String snakeType) throws OutOfPlayException, SelfCollisionException, MalnutritionException {
+        Snake snake = createSnake(snakeType);
+        grid.getTile(4, 4).addFood(new Apple());
+        grid.getTile(4, 3).addFood(new Apple());
+        grid.getTile(4, 2).addFood(new Apple());
+        for (int i = 0; i < 3; i++) {
+            snake.move(Direction.UP);
         }
-        game.iterate(Direction.LEFT);
-        game.iterate(Direction.DOWN);
+        snake.move(Direction.LEFT);
+        snake.move(Direction.DOWN);
         Assertions.assertThrows(SelfCollisionException.class, () -> {
-            game.iterate(Direction.RIGHT);
+            snake.move(Direction.RIGHT);
         });
+    }
+
+    private Snake createSnake(String snakeType) {
+        return switch (snakeType) {
+            case "ANACONDA" -> new Anaconda(listener, grid);
+            case "PYTHON" -> new Python(listener, grid);
+            case "BOA" -> new BoaConstrictor(listener, grid);
+            default -> throw new IllegalArgumentException("Unknown snake type: " + snakeType);
+        };
     }
 
 }

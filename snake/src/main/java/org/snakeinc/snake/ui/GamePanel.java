@@ -59,6 +59,9 @@ public class GamePanel extends JPanel implements ActionListener, KeyListener {
         g.setFont(new Font("Arial", Font.BOLD, 20));
         FontMetrics metrics = getFontMetrics(g.getFont());
         g.drawString("Game Over", (GAME_PIXEL_WIDTH - metrics.stringWidth("Game Over")) / 2, GAME_PIXEL_HEIGHT / 2);
+        g.drawString("Score: " + game.getScore().getPoints(), (GAME_PIXEL_WIDTH - metrics.stringWidth("Score: ")) / 2, GAME_PIXEL_HEIGHT / 2 + 30);
+        g.drawString("Moves Made: " + game.getScore().getMovesMade(), (GAME_PIXEL_WIDTH - metrics.stringWidth("Moves Made: ")) / 2, GAME_PIXEL_HEIGHT / 2 + 60);
+        g.drawString("Food Eaten: " + game.getScore().getFoodsEaten(), (GAME_PIXEL_WIDTH - metrics.stringWidth("Food Eaten: ")) / 2, GAME_PIXEL_HEIGHT / 2 + 90);
     }
 
     @Override
@@ -76,27 +79,16 @@ public class GamePanel extends JPanel implements ActionListener, KeyListener {
 
     @Override
     public void keyPressed(KeyEvent e) {
-        switch (e.getKeyCode()) {
-            case KeyEvent.VK_LEFT:
-                if (direction != Direction.RIGHT) {
-                    direction = Direction.LEFT;
-                }
-                break;
-            case KeyEvent.VK_RIGHT:
-                if (direction != Direction.LEFT) {
-                    direction = Direction.RIGHT;
-                }
-                break;
-            case KeyEvent.VK_UP:
-                if (direction != Direction.DOWN) {
-                    direction = Direction.UP;
-                }
-                break;
-            case KeyEvent.VK_DOWN:
-                if (direction != Direction.UP) {
-                    direction = Direction.DOWN;
-                }
-                break;
+        Direction newDirection = switch (e.getKeyCode()) {
+            case KeyEvent.VK_LEFT -> Direction.LEFT;
+            case KeyEvent.VK_RIGHT -> Direction.RIGHT;
+            case KeyEvent.VK_UP -> Direction.UP;
+            case KeyEvent.VK_DOWN -> Direction.DOWN;
+            default -> null;
+        };
+
+        if (newDirection != null) {
+            direction = newDirection;
         }
     }
 

@@ -14,12 +14,14 @@ public class FoodFactory {
     private static Apple createAppleInCell(Cell cell) {
         Apple apple = new Apple();
         cell.addFood(apple);
+        apple.setCurrentCell(cell);
         return apple;
     }
 
     private static Broccoli createBroccoliInCell(Cell cell) {
         Broccoli broccoli = new Broccoli();
         cell.addFood(broccoli);
+        broccoli.setCurrentCell(cell);
         return broccoli;
     }
 

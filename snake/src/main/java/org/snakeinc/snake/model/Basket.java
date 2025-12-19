@@ -2,41 +2,60 @@ package org.snakeinc.snake.model;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Random;
-import lombok.Data;
-import org.snakeinc.snake.GameParams;
+import lombok.Getter;
+import lombok.Setter;
 import org.snakeinc.snake.model.food.*;
+import org.snakeinc.snake.model.snakes.Snake;
+import org.snakeinc.snake.model.strategy.FoodPlacementStrategy;
 
-@Data
+@Getter
 public class Basket {
 
+    @Setter
     private Grid grid;
-    private List<Apple> apples;
-    private List<Broccoli> broccolis;
+    private final List<Apple> apples;
+    private final List<Broccoli> broccolis;
+    private final FoodPlacementStrategy placementStrategy;
+    @Setter
+    private Snake snake;
 
-    public Basket(Grid grid) {
+    public Basket(Grid grid, FoodPlacementStrategy placementStrategy) {
         apples = new ArrayList<>();
         broccolis = new ArrayList<>();
         this.grid = grid;
+        this.placementStrategy = placementStrategy;
     }
 
     public void addFood(Cell cell, FoodType foodType) {
         if (cell == null) {
-            var random = new Random();
-            while (cell == null || cell.containsASnake() || cell.containsFood()) {
-                cell = grid.getTile(random.nextInt(0, GameParams.TILES_X), random.nextInt(0, GameParams.TILES_Y));
-            }
+            cell = placementStrategy.findPlacementCell(grid, snake);
         }
         Food food = FoodFactory.createFoodInCell(foodType, cell);
+
         switch (food) {
-            case Apple apple -> apples.add(apple);
-            case Broccoli broccoli -> broccolis.add(broccoli);
+            case Apple apple -> {
+                apple.setGrid(grid);
+                apples.add(apple);
+            }
+            case Broccoli broccoli -> {
+                broccoli.setGrid(grid);
+                broccolis.add(broccoli);
+            }
             default -> {}
+        }
+
+        if (snake != null) {
+            snake.attach(food);
         }
     }
 
     public void removeFoodInCell(Food food, Cell cell) {
         cell.removeFood();
+
+        if (snake != null) {
+            snake.detach(food);
+        }
+
         switch (food) {
             case Apple apple -> apples.remove(apple);
             case Broccoli broccoli -> broccolis.remove(broccoli);
