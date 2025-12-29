@@ -22,7 +22,7 @@ public class PlayerService {
         Category category = determineCategory(params.age());
         LocalDate createdAt = LocalDate.now();
 
-        Player player = new Player(null, params.name(), params.age(), category, createdAt);
+        Player player = new Player(null, params.name(), params.age(), category, createdAt, null);
         Player savedPlayer = playerRepository.save(player);
 
         return savedPlayer.toDto();

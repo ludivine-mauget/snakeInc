@@ -32,7 +32,7 @@ class PlayerServiceTests {
     void testCreatePlayer_ShouldReturnPlayer() {
         // Arrange
         PlayerParams params = new PlayerParams("Alice", 20);
-        Player savedPlayer = new Player(1, "Alice", 20, Category.JUNIOR, LocalDate.now());
+        Player savedPlayer = new Player(1, "Alice", 20, Category.JUNIOR, LocalDate.now(), null);
 
         when(playerRepository.save(any())).thenReturn(savedPlayer);
 
@@ -49,7 +49,7 @@ class PlayerServiceTests {
     @Test
     void testGetPlayerById_ShouldReturnPlayer() {
         // Arrange
-        Player player = new Player(1, "Alice", 20, Category.JUNIOR, LocalDate.now());
+        Player player = new Player(1, "Alice", 20, Category.JUNIOR, LocalDate.now(), null);
         when(playerRepository.findById(1)).thenReturn(Optional.of(player));
 
         // Act

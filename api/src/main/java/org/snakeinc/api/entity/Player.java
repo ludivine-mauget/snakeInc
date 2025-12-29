@@ -8,6 +8,8 @@ import org.snakeinc.api.model.Category;
 import org.snakeinc.api.model.PlayerDto;
 
 import java.time.LocalDate;
+import java.util.ArrayList;
+import java.util.List;
 
 @Entity
 @Table(name = "players")
@@ -15,7 +17,6 @@ import java.time.LocalDate;
 @NoArgsConstructor
 @AllArgsConstructor
 public class Player {
-
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
@@ -32,6 +33,9 @@ public class Player {
 
     @Column(name = "created_at", nullable = false)
     private LocalDate createdAt;
+
+    @OneToMany(mappedBy = "player", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<Score> scores = new ArrayList<>();
 
     public PlayerDto toDto() {
         return new PlayerDto(

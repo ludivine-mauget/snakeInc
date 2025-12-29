@@ -30,5 +30,25 @@ public class ControllerExceptionHandler {
         return ResponseEntity.badRequest().body(bodyOfResponse);
     }
 
+    @ExceptionHandler(PlayerNotFoundException.class)
+    public ResponseEntity<Object> handlePlayerNotFoundException(PlayerNotFoundException e) {
+        ErrorResponse bodyOfResponse = new ErrorResponse(
+                HttpStatus.NOT_FOUND.value(),
+                e.getMessage(),
+                Map.of()
+        );
+        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(bodyOfResponse);
+    }
+
+    @ExceptionHandler(InvalidSnakeTypeException.class)
+    public ResponseEntity<Object> handleInvalidSnakeTypeException(InvalidSnakeTypeException e) {
+        ErrorResponse bodyOfResponse = new ErrorResponse(
+                HttpStatus.BAD_REQUEST.value(),
+                e.getMessage(),
+                Map.of()
+        );
+        return ResponseEntity.badRequest().body(bodyOfResponse);
+    }
+
     public record ErrorResponse(int status, String message, Map<String, String> errors) { }
 }
