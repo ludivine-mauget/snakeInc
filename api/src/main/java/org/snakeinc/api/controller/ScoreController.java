@@ -1,6 +1,7 @@
 package org.snakeinc.api.controller;
 
 import jakarta.validation.Valid;
+import org.snakeinc.api.model.PlayerStatsDto;
 import org.snakeinc.api.model.ScoreDto;
 import org.snakeinc.api.model.ScoreListDto;
 import org.snakeinc.api.model.ScoreParams;
@@ -31,6 +32,12 @@ public class ScoreController {
             @RequestParam(required = false) Integer player) {
         ScoreListDto scores = scoreService.getScores(snake, player);
         return ResponseEntity.ok(scores);
+    }
+
+    @GetMapping("/stats")
+    public ResponseEntity<PlayerStatsDto> getPlayerStats(@RequestParam Integer playerId) {
+        PlayerStatsDto stats = scoreService.getPlayerStats(playerId);
+        return ResponseEntity.ok(stats);
     }
 }
 

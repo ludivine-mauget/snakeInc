@@ -4,15 +4,13 @@ import org.snakeinc.api.entity.Player;
 import org.snakeinc.api.entity.Score;
 import org.snakeinc.api.exception.InvalidSnakeTypeException;
 import org.snakeinc.api.exception.PlayerNotFoundException;
-import org.snakeinc.api.model.ScoreDto;
-import org.snakeinc.api.model.ScoreListDto;
-import org.snakeinc.api.model.ScoreParams;
-import org.snakeinc.api.model.SnakeType;
+import org.snakeinc.api.model.*;
 import org.snakeinc.api.repository.PlayerRepository;
 import org.snakeinc.api.repository.ScoreRepository;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -80,6 +78,26 @@ public class ScoreService {
                 .collect(Collectors.toList());
 
         return new ScoreListDto(scoreDtos);
+    }
+
+    @Transactional(readOnly = true)
+    public PlayerStatsDto getPlayerStats(Integer playerId) {
+        playerRepository.findById(playerId)
+                .orElseThrow(() -> new PlayerNotFoundException(playerId));
+
+        List<Object[]> statsData = scoreRepository.findStatsByPlayerId(playerId);
+
+        List<SnakeStatsDto> stats = new ArrayList<>();
+        for (Object[] row : statsData) {
+            SnakeType snakeType = (SnakeType) row[0];
+            Integer min = ((Number) row[1]).intValue();
+            Integer max = ((Number) row[2]).intValue();
+            Double average = ((Number) row[3]).doubleValue();
+
+            stats.add(new SnakeStatsDto(snakeType.getValue(), min, max, average));
+        }
+
+        return new PlayerStatsDto(playerId, stats);
     }
 }
 

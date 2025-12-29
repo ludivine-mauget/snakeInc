@@ -3,9 +3,7 @@ package org.snakeinc.api.controller;
 import org.junit.jupiter.api.Test;
 import org.snakeinc.api.ApiApplication;
 import org.snakeinc.api.entity.Player;
-import org.snakeinc.api.model.Category;
-import org.snakeinc.api.model.ScoreDto;
-import org.snakeinc.api.model.ScoreParams;
+import org.snakeinc.api.model.*;
 import org.snakeinc.api.repository.PlayerRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -120,6 +118,123 @@ public class ScoreControllerTests {
             assert createdScore != null;
             assert createdScore.getSnake().equals(snakeType);
         }
+    }
+
+    @Test
+    public void testGetScores_WithoutFilters() {
+        // Arrange
+        Player player = createPlayer("Test Player", 25);
+        ScoreParams params1 = createScoreParams("python", 100, player.getId());
+        ScoreParams params2 = createScoreParams("anaconda", 200, player.getId());
+
+        restTemplate.postForEntity("/api/v1/scores", params1, ScoreDto.class);
+        restTemplate.postForEntity("/api/v1/scores", params2, ScoreDto.class);
+
+        // Act
+        ResponseEntity<ScoreListDto> response = restTemplate.getForEntity("/api/v1/scores", ScoreListDto.class);
+
+        // Assert
+        assert response.getStatusCode().is2xxSuccessful();
+        ScoreListDto scoreList = response.getBody();
+        assert scoreList != null;
+        assert scoreList.getScores() != null;
+        assert scoreList.getScores().size() >= 2;
+    }
+
+    @Test
+    public void testGetScores_FilterBySnake() {
+        // Arrange
+        Player player = createPlayer("Snake Lover", 30);
+        ScoreParams params1 = createScoreParams("python", 150, player.getId());
+        ScoreParams params2 = createScoreParams("anaconda", 250, player.getId());
+
+        restTemplate.postForEntity("/api/v1/scores", params1, ScoreDto.class);
+        restTemplate.postForEntity("/api/v1/scores", params2, ScoreDto.class);
+
+        // Act
+        ResponseEntity<ScoreListDto> response = restTemplate.getForEntity("/api/v1/scores?snake=python", ScoreListDto.class);
+
+        // Assert
+        assert response.getStatusCode().is2xxSuccessful();
+        ScoreListDto scoreList = response.getBody();
+        assert scoreList != null;
+        assert scoreList.getScores().stream().allMatch(s -> s.getSnake().equals("python"));
+    }
+
+    @Test
+    public void testGetScores_FilterByPlayer() {
+        // Arrange
+        Player player1 = createPlayer("Player One", 25);
+        Player player2 = createPlayer("Player Two", 30);
+
+        ScoreParams params1 = createScoreParams("python", 100, player1.getId());
+        ScoreParams params2 = createScoreParams("anaconda", 200, player2.getId());
+
+        restTemplate.postForEntity("/api/v1/scores", params1, ScoreDto.class);
+        restTemplate.postForEntity("/api/v1/scores", params2, ScoreDto.class);
+
+        // Act
+        ResponseEntity<ScoreListDto> response = restTemplate.getForEntity("/api/v1/scores?player=" + player1.getId(), ScoreListDto.class);
+
+        // Assert
+        assert response.getStatusCode().is2xxSuccessful();
+        ScoreListDto scoreList = response.getBody();
+        assert scoreList != null;
+        assert scoreList.getScores().stream().allMatch(s -> s.getPlayerId().equals(player1.getId()));
+    }
+
+    @Test
+    public void testGetPlayerStats_Success() {
+        // Arrange
+        Player player = createPlayer("Stats Player", 28);
+
+        // Créer plusieurs scores pour différents types de serpents
+        restTemplate.postForEntity("/api/v1/scores", createScoreParams("python", 100, player.getId()), ScoreDto.class);
+        restTemplate.postForEntity("/api/v1/scores", createScoreParams("python", 200, player.getId()), ScoreDto.class);
+        restTemplate.postForEntity("/api/v1/scores", createScoreParams("python", 150, player.getId()), ScoreDto.class);
+
+        restTemplate.postForEntity("/api/v1/scores", createScoreParams("anaconda", 300, player.getId()), ScoreDto.class);
+        restTemplate.postForEntity("/api/v1/scores", createScoreParams("anaconda", 400, player.getId()), ScoreDto.class);
+
+        // Act
+        ResponseEntity<PlayerStatsDto> response = restTemplate.getForEntity("/api/v1/scores/stats?playerId=" + player.getId(), PlayerStatsDto.class);
+
+        // Assert
+        assert response.getStatusCode().is2xxSuccessful();
+        PlayerStatsDto stats = response.getBody();
+        assert stats != null;
+        assert stats.getPlayerId().equals(player.getId());
+        assert stats.getStats() != null;
+        assert stats.getStats().size() == 2; // python et anaconda
+
+        // Vérifier les stats pour python
+        SnakeStatsDto pythonStats = stats.getStats().stream()
+                .filter(s -> s.getSnake().equals("python"))
+                .findFirst()
+                .orElse(null);
+        assert pythonStats != null;
+        assert pythonStats.getMin() == 100;
+        assert pythonStats.getMax() == 200;
+        assert pythonStats.getAverage() == 150.0;
+
+        // Vérifier les stats pour anaconda
+        SnakeStatsDto anacondaStats = stats.getStats().stream()
+                .filter(s -> s.getSnake().equals("anaconda"))
+                .findFirst()
+                .orElse(null);
+        assert anacondaStats != null;
+        assert anacondaStats.getMin() == 300;
+        assert anacondaStats.getMax() == 400;
+        assert anacondaStats.getAverage() == 350.0;
+    }
+
+    @Test
+    public void testGetPlayerStats_PlayerNotFound() {
+        // Act
+        ResponseEntity<PlayerStatsDto> response = restTemplate.getForEntity("/api/v1/scores/stats?playerId=99999", PlayerStatsDto.class);
+
+        // Assert
+        assert response.getStatusCode().is4xxClientError();
     }
 }
 
