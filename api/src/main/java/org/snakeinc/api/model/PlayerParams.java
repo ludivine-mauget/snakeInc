@@ -1,4 +1,11 @@
 package org.snakeinc.api.model;
 
-public record PlayerParams(String name, int age) {
+import jakarta.validation.constraints.Min;
+import jakarta.validation.constraints.NotNull;
+
+public record PlayerParams(
+        @NotNull
+        String name,
+        @Min(14)
+        int age) {
 }

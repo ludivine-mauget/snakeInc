@@ -1,6 +1,7 @@
 package org.snakeinc.api.controller;
 
-import org.snakeinc.api.model.Player;
+import jakarta.validation.Valid;
+import org.snakeinc.api.model.PlayerDto;
 import org.snakeinc.api.model.PlayerParams;
 import org.snakeinc.api.service.PlayerService;
 import org.springframework.http.HttpStatus;
@@ -18,9 +19,18 @@ public class PlayerController {
     }
 
     @PostMapping
-    public ResponseEntity<Player> createPlayer(@RequestBody PlayerParams params) {
-        Player player = playerService.createPlayer(params);
+    public ResponseEntity<PlayerDto> createPlayer(@RequestBody @Valid PlayerParams params) {
+        PlayerDto player = playerService.createPlayer(params);
         return ResponseEntity.status(HttpStatus.CREATED).body(player);
+    }
+
+    @GetMapping("/{id}")
+    public ResponseEntity<PlayerDto> getPlayerById(@PathVariable int id) {
+        PlayerDto player = playerService.getPlayerById(id);
+        if (player == null) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
+        }
+        return ResponseEntity.ok(player);
     }
 }
 
