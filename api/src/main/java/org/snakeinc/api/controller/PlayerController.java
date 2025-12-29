@@ -2,6 +2,7 @@ package org.snakeinc.api.controller;
 
 import jakarta.validation.Valid;
 import org.snakeinc.api.model.PlayerDto;
+import org.snakeinc.api.model.PlayerListDto;
 import org.snakeinc.api.model.PlayerParams;
 import org.snakeinc.api.service.PlayerService;
 import org.springframework.http.HttpStatus;
@@ -31,6 +32,12 @@ public class PlayerController {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
         }
         return ResponseEntity.ok(player);
+    }
+
+    @GetMapping
+    public ResponseEntity<PlayerListDto> getAllPlayers() {
+        PlayerListDto players = playerService.getAllPlayers();
+        return ResponseEntity.ok(players);
     }
 }
 

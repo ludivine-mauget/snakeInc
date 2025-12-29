@@ -108,4 +108,8 @@ public class Game {
         }
     }
 
+    public String getSnakeType() {
+        return snake.getClass().getSimpleName().toLowerCase();
+    }
+
 }

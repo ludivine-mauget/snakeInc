@@ -3,11 +3,15 @@ package org.snakeinc.api.service;
 import org.snakeinc.api.entity.Player;
 import org.snakeinc.api.model.Category;
 import org.snakeinc.api.model.PlayerDto;
+import org.snakeinc.api.model.PlayerListDto;
 import org.snakeinc.api.model.PlayerParams;
 import org.snakeinc.api.repository.PlayerRepository;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
+import java.util.List;
+import java.util.stream.Collectors;
+import java.util.stream.StreamSupport;
 
 @Service
 public class PlayerService {
@@ -36,6 +40,13 @@ public class PlayerService {
         return playerRepository.findById(id)
                 .map(Player::toDto)
                 .orElse(null);
+    }
+
+    public PlayerListDto getAllPlayers() {
+        List<PlayerDto> players = StreamSupport.stream(playerRepository.findAll().spliterator(), false)
+                .map(Player::toDto)
+                .collect(Collectors.toList());
+        return new PlayerListDto(players);
     }
 }
 
