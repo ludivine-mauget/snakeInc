@@ -1,29 +1,31 @@
 package org.snakeinc.api.service;
 
+import org.snakeinc.api.entity.Player;
 import org.snakeinc.api.model.Category;
 import org.snakeinc.api.model.PlayerDto;
 import org.snakeinc.api.model.PlayerParams;
+import org.snakeinc.api.repository.PlayerRepository;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.concurrent.atomic.AtomicInteger;
 
 @Service
 public class PlayerService {
-    private Map<Integer, PlayerDto> players = new HashMap<>();
-    private final AtomicInteger idGenerator = new AtomicInteger(1);
+
+    private final PlayerRepository playerRepository;
+
+    public PlayerService(PlayerRepository playerRepository) {
+        this.playerRepository = playerRepository;
+    }
 
     public PlayerDto createPlayer(PlayerParams params) {
-        Integer id = idGenerator.getAndIncrement();
         Category category = determineCategory(params.age());
         LocalDate createdAt = LocalDate.now();
 
-        PlayerDto player = new PlayerDto(id, params.name(), params.age(), category, createdAt);
-        players.put(id, player);
+        Player player = new Player(null, params.name(), params.age(), category, createdAt);
+        Player savedPlayer = playerRepository.save(player);
 
-        return player;
+        return savedPlayer.toDto();
     }
 
     private Category determineCategory(int age) {
@@ -31,7 +33,10 @@ public class PlayerService {
     }
 
     public PlayerDto getPlayerById(Integer id) {
-        return players.get(id);
+        return playerRepository.findById(id)
+                .map(Player::toDto)
+                .orElse(null);
     }
 }
+
 

@@ -10,14 +10,14 @@ public class PlayerDto {
         private String name;
         private int age;
         private Category category;
-        private LocalDate createdA;
+        private LocalDate createdAt;
 
         public PlayerDto(Integer id, String name, int age, Category category, LocalDate createdAt) {
             this.id = id;
             this.name = name;
             this.age = age;
             this.category = category;
-            this.createdA = createdAt;
+            this.createdAt = createdAt;
         }
 }
 
